@@ -78,7 +78,7 @@ class Charitable_Extension_Activation {
 	 * @return void
 	 */
 	public function run() {
-		add_action( 'admin_notices', array( $this, 'missing_charitable_notice' ) );
+		add_action( 'admin_notices', [ $this, 'missing_charitable_notice' ] );
 	}
 
 	/**

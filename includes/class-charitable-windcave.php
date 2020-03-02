@@ -82,7 +82,7 @@ if ( ! class_exists( 'Charitable_Windcave' ) ) :
 			$this->directory_path = plugin_dir_path( $plugin_file );
 			$this->directory_url  = plugin_dir_url( $plugin_file );
 
-			add_action( 'charitable_start', array( $this, 'start' ), 6 );
+			add_action( 'charitable_start', [ $this, 'start' ], 6 );
 		}
 
 		/**
@@ -235,8 +235,8 @@ if ( ! class_exists( 'Charitable_Windcave' ) ) :
 			/**
 			 * Set up upgrade process.
 			 */
-			// add_action( 'admin_notices', array( Charitable_Windcave_Upgrade::get_instance(), 'add_upgrade_notice' ) );
-			// add_action( 'init', array( Charitable_Windcave_Upgrade::get_instance(), 'do_immediate_upgrades' ), 5 );
+			// add_action( 'admin_notices', [ Charitable_Windcave_Upgrade::get_instance(), 'add_upgrade_notice' ] );
+			// add_action( 'init', [ Charitable_Windcave_Upgrade::get_instance(), 'do_immediate_upgrades' ], 5 );
 		}
 
 		/**

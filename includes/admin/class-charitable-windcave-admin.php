@@ -90,7 +90,7 @@ if ( ! class_exists( 'Charitable_Windcave_Admin' ) ) :
 		 * @param  array[] $fields Settings to display in tab.
 		 * @return array[]
 		 */
-		public function add_windcave_settings( $fields = array() ) {
+		public function add_windcave_settings( $fields = [] ) {
 			if ( ! charitable_is_settings_view( 'extensions' ) ) {
 				return $fields;
 			}

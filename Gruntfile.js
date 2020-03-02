@@ -103,7 +103,8 @@ module.exports = function(grunt) {
 
     // Classmap
     grunt.registerTask( 'classmap', 'Generate class to file array" task.', function() {
-        var map = "<?php\nreturn array(\n";
+        var map = "/* CLASSMAP: IGNORE */\n";
+            map += "<?php\nreturn [\n";
 
         //loop through all files in includes directory
         grunt.file.recurse("includes", function (abspath, rootdir, subdir, filename) {
@@ -124,7 +125,6 @@ module.exports = function(grunt) {
 
             // Ignore function files.
             if( classname != '' ) {
-
                 if ( grunt.file.read(abspath).includes('/* CLASSMAP: IGNORE */') ) {
                     return;
                 }
@@ -143,7 +143,7 @@ module.exports = function(grunt) {
             }
         });
 
-        map = map.concat( ");\n" );
+        map = map.concat( "];\n" );
 
         grunt.file.write('includes/autoloader/charitable-windcave-class-map.php', map );
     } );

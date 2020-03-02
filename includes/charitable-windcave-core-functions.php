@@ -48,7 +48,7 @@ function charitable_windcave_deprecated() {
  * @param  array        $args          Optional array of arguments to pass to the view.
  * @return Charitable_Windcave_Template
  */
-function charitable_windcave_template( $template_name, array $args = array() ) {
+function charitable_windcave_template( $template_name, array $args = [] ) {
 	if ( empty( $args ) ) {
 		$template = new Charitable_Windcave_Template( $template_name );
 	} else {

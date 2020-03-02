@@ -41,15 +41,22 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 		 * @since 1.0.0
 		 */
 		public function __construct() {
+			/**
+			 * Change the Windcave gateway name as its shown in the gateway settings page.
+			 *
+			 * @since 1.0.0
+			 *
+			 * @param string $name The gateway name.
+			 */
 			$this->name = apply_filters( 'charitable_gateway_windcave_name', __( 'Windcave', 'charitable-windcave' ) );
 
-			$this->defaults = array(
+			$this->defaults = [
 				'label' => __( 'Windcave', 'charitable-windcave' ),
-			);
+			];
 
-			$this->supports = array(
+			$this->supports = [
 				'1.3.0',
-			);
+			];
 
 			/**
 			 * Needed for backwards compatibility with Charitable < 1.3
@@ -77,19 +84,19 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 		 * @return array[]
 		 */
 		public function gateway_settings( $settings ) {
-			$settings['test_secret_key'] = array(
+			$settings['test_secret_key'] = [
 				'type'     => 'text',
 				'title'    => __( 'Test Secret Key', 'charitable-windcave' ),
 				'priority' => 6,
 				'class'    => 'wide',
-			);
+			];
 
-			$settings['test_public_key'] = array(
+			$settings['test_public_key'] = [
 				'type'     => 'text',
 				'title'    => __( 'Test Publishable Key', 'charitable-windcave' ),
 				'priority' => 8,
 				'class'    => 'wide',
-			);
+			];
 
 			return $settings;
 		}
@@ -118,7 +125,7 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 		 * @return string[]
 		 */
 		public function get_keys() {
-			$keys = array();
+			$keys = [];
 
 			if ( charitable_get_option( 'test_mode' ) ) {
 				$keys['secret_key'] = trim( $this->get_value( 'test_secret_key' ) );
@@ -224,8 +231,8 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 			// $phone        = $donor->get_donor_meta( 'phone' );
 
 			// URL fields
-			// $return_url = charitable_get_permalink( 'donation_receipt_page', array( 'donation_id' => $donation->ID ) );
-			// $cancel_url = charitable_get_permalink( 'donation_cancel_page', array( 'donation_id' => $donation->ID ) );
+			// $return_url = charitable_get_permalink( 'donation_receipt_page', [ 'donation_id' => $donation->ID ] );
+			// $cancel_url = charitable_get_permalink( 'donation_cancel_page', [ 'donation_id' => $donation->ID ] );
 			// $notify_url = function_exists( 'charitable_get_ipn_url' )
 			// 	? charitable_get_ipn_url( Charitable_Gateway_Sparrow::ID )
 			// 	: Charitable_Donation_Processor::get_instance()->get_ipn_url( Charitable_Gateway_Sparrow::ID );
@@ -252,10 +259,10 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 			 *    a gateway-hosted payment page), you should return an array
 			 *    like this:
 
-				array(
+				[
 					'redirect' => $redirect_url,
 					'safe' => false // Set to false if you are redirecting away from the site.
-				);
+				];
 			 *
 			 */
 
