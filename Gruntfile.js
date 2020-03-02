@@ -103,8 +103,9 @@ module.exports = function(grunt) {
 
     // Classmap
     grunt.registerTask( 'classmap', 'Generate class to file array" task.', function() {
-        var map = "/* CLASSMAP: IGNORE */\n";
-            map += "<?php\nreturn [\n";
+        var map = "<?php\n";
+            map += "/* CLASSMAP: IGNORE */\n";
+            map += "return [\n";
 
         //loop through all files in includes directory
         grunt.file.recurse("includes", function (abspath, rootdir, subdir, filename) {

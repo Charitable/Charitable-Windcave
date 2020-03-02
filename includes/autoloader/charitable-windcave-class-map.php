@@ -1,5 +1,5 @@
-/* CLASSMAP: IGNORE */
 <?php
+/* CLASSMAP: IGNORE */
 return [
 	'Charitable_Extension_Activation' => 'admin/class-charitable-extension-activation.php',
 	'Charitable_Windcave_Admin' => 'admin/class-charitable-windcave-admin.php',
