@@ -71,6 +71,15 @@ if ( ! class_exists( 'Charitable_Windcave' ) ) :
 		private $directory_url;
 
 		/**
+		 * Gateway class instance.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @var   Charitable_Gateway_Windcave
+		 */
+		private $gateway;
+
+		/**
 		 * Create class instance.
 		 *
 		 * @since 1.0.0
@@ -115,13 +124,10 @@ if ( ! class_exists( 'Charitable_Windcave' ) ) :
 			spl_autoload_register( [ $this, 'autoloader' ] );
 
 			$this->load_dependencies();
-
 			$this->maybe_start_admin();
-
 			$this->setup_licensing();
-
 			$this->setup_i18n();
-
+			$this->gateway();
 			$this->attach_hooks_and_filters();
 
 			/**
@@ -178,7 +184,6 @@ if ( ! class_exists( 'Charitable_Windcave' ) ) :
 		 */
 		private function load_dependencies() {
 			require_once( $this->get_path( 'includes' ) . 'charitable-windcave-core-functions.php' );
-			require_once( $this->get_path( 'includes' ) . 'gateway/charitable-windcave-gateway-hooks.php' );
 			require_once( $this->get_path( 'includes' ) . 'libraries/pxpay/PxPay.php' );
 		}
 
@@ -224,6 +229,21 @@ if ( ! class_exists( 'Charitable_Windcave' ) ) :
 			if ( class_exists( 'Charitable_i18n' ) ) {
 				Charitable_Windcave_i18n::get_instance();
 			}
+		}
+
+		/**
+		 * Return the gateway class instance.
+		 *
+		 * @since  1.0.0
+		 *
+		 * @return Charitable_Gateway_Windcave
+		 */
+		public function gateway() {
+			if ( ! isset( $this->gateway ) ) {
+				$this->gateway = new Charitable_Gateway_Windcave();
+			}
+
+			return $this->gateway;
 		}
 
 		/**

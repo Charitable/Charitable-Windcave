@@ -27,6 +27,16 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 		const ID = 'windcave';
 
 		/**
+		 * Boolean flag recording whether the gateway hooks
+		 * have been set up.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @var   boolean
+		 */
+		private static $setup = false;
+
+		/**
 		 * Flags whether the gateway requires credit card fields added to the donation form.
 		 *
 		 * @since 1.0.0
@@ -57,6 +67,33 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 			$this->supports = [
 				'1.3.0',
 			];
+
+			$this->setup();
+		}
+
+		/**
+		 * Set up hooks for the class.
+		 *
+		 * @since  1.0.0
+		 *
+		 * @return void
+		 */
+		public function setup() {
+			if ( self::$setup ) {
+				return;
+			}
+
+			self::$setup = true;
+
+			/**
+			 * Register our new gateway.
+			 */
+			add_filter( 'charitable_payment_gateways', [ $this, 'register_gateway' ] );
+
+			/**
+			 * Process the donation.
+			 */
+			add_filter( 'charitable_process_donation_windcave', [ $this, 'process_donation' ], 10, 3 );
 		}
 
 		/**
@@ -79,16 +116,16 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 		 * @return array[]
 		 */
 		public function gateway_settings( $settings ) {
-			$settings['test_secret_key'] = [
+			$settings['userid'] = [
 				'type'     => 'text',
-				'title'    => __( 'Test Secret Key', 'charitable-windcave' ),
+				'title'    => __( 'PxPay User ID', 'charitable-windcave' ),
 				'priority' => 6,
 				'class'    => 'wide',
 			];
 
-			$settings['test_public_key'] = [
+			$settings['key'] = [
 				'type'     => 'text',
-				'title'    => __( 'Test Publishable Key', 'charitable-windcave' ),
+				'title'    => __( 'PxPay Key', 'charitable-windcave' ),
 				'priority' => 8,
 				'class'    => 'wide',
 			];
@@ -104,7 +141,7 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 		 * @param  string[] $gateways The list of registered gateways.
 		 * @return string[]
 		 */
-		public static function register_gateway( $gateways ) {
+		public function register_gateway( $gateways ) {
 			$gateways['windcave'] = 'Charitable_Gateway_Windcave';
 			return $gateways;
 		}
@@ -120,71 +157,10 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 		 * @return string[]
 		 */
 		public function get_keys() {
-			$keys = [];
-
-			if ( charitable_get_option( 'test_mode' ) ) {
-				$keys['secret_key'] = trim( $this->get_value( 'test_secret_key' ) );
-				$keys['public_key'] = trim( $this->get_value( 'test_public_key' ) );
-			} else {
-				$keys['secret_key'] = trim( $this->get_value( 'live_secret_key' ) );
-				$keys['public_key'] = trim( $this->get_value( 'live_public_key' ) );
-			}
-
-			return $keys;
-		}
-
-		/**
-		 * Return the submitted value for a gateway field.
-		 *
-		 * @since  1.0.0
-		 *
-		 * @param  string  $key    The key of the field to get.
-		 * @param  mixed[] $values Set of values to find the values in.
-		 * @return string|false
-		 */
-		public function get_gateway_value( $key, $values ) {
-			return isset( $values['gateways']['windcave'][ $key ] ) ? $values['gateways']['windcave'][ $key ] : false;
-		}
-
-		/**
-		 * Return the submitted value for a gateway field.
-		 *
-		 * @since  1.0.0
-		 *
-		 * @param  string                        $key       The key of the field to get.
-		 * @param  Charitable_Donation_Processor $processor Donation processor object.
-		 * @return string|false
-		 */
-		public function get_gateway_value_from_processor( $key, Charitable_Donation_Processor $processor ) {
-			return $this->get_gateway_value( $key, $processor->get_donation_data() );
-		}
-
-		/**
-		 * Validate the submitted credit card details.
-		 *
-		 * @since  1.0.0
-		 *
-		 * @param  boolean $valid   Whether the donation is valid.
-		 * @param  string  $gateway The gateway for the donation.
-		 * @param  mixed[] $values  Submitted donation values.
-		 * @return boolean
-		 */
-		public static function validate_donation( $valid, $gateway, $values ) {
-			if ( 'windcave' != $gateway ) {
-				return $valid;
-			}
-
-			if ( ! isset( $values['gateways']['windcave'] ) ) {
-				return false;
-			}
-
-			/**
-			 * Check that the donation is valid.
-			 *
-			 * @todo
-			 */
-
-			return $valid;
+			return [
+				'key'     => trim( $this->get_value( 'key' ) ),
+				'user_id' => trim( $this->get_value( 'user_id' ) ),
+			];
 		}
 
 		/**
@@ -197,12 +173,10 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 		 * @param  Charitable_Donation_Processor $processor   Donation processor object.
 		 * @return boolean|array
 		 */
-		public static function process_donation( $return, $donation_id, $processor ) {
-			$gateway     = new Charitable_Gateway_Windcave();
+		public function process_donation( $return, $donation_id, $processor ) {
+			$gateway_processor = new Charitable_Windcave_Gateway_Processor( $donation_id, $processor );
 
-			$donation    = charitable_get_donation( $donation_id );
-			$donor       = $donation->get_donor();
-			$values      = $processor->get_donation_data();
+			return $gateway_processor->run();
 
 			// API keys
 			// $keys        = $gateway->get_keys();
