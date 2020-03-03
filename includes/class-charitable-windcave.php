@@ -178,6 +178,8 @@ if ( ! class_exists( 'Charitable_Windcave' ) ) :
 		 */
 		private function load_dependencies() {
 			require_once( $this->get_path( 'includes' ) . 'charitable-windcave-core-functions.php' );
+			require_once( $this->get_path( 'includes' ) . 'gateway/charitable-windcave-gateway-hooks.php' );
+			require_once( $this->get_path( 'includes' ) . 'libraries/pxpay/PxPay.php' );
 		}
 
 		/**

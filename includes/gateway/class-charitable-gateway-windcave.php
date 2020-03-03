@@ -57,11 +57,6 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 			$this->supports = [
 				'1.3.0',
 			];
-
-			/**
-			 * Needed for backwards compatibility with Charitable < 1.3
-			 */
-			$this->credit_card_form = true;
 		}
 
 		/**
