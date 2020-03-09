@@ -115,6 +115,16 @@ if ( ! class_exists( 'Charitable_Windcave_Gateway_Processor' ) ) :
 			$request->setUrlSuccess( charitable_get_permalink( 'donation_receipt_page', [ 'donation_id' => $this->donation->ID ] ) );
 			$request->setTxnId( substr( $this->donation->get_donation_key(), 0, 16 ) );
 
+			/**
+			 * Filter the PxPay transaction request.
+			 *
+			 * @since 1.0.0
+			 *
+			 * @param \Charitable_Windcave\PxPayRequest     $request   The PxPayRequest object.
+			 * @param Charitable_Windcave_Gateway_Processor $processor The Windcave gateway processor object.
+			 */
+			$request = apply_filters( 'charitable_windcave_pxpay_request', $request, $this );
+
 			/* Call makeRequest function to obtain input XML. */
 			$request_string = $this->gateway->pxpay()->makeRequest( $request );
 

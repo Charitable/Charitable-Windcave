@@ -46,8 +46,6 @@ class PxPostWordPress {
 
 		$xml = $request->toXml();
 
-		error_log( $xml );
-
 		$result = $this->submitXml( $xml );
 
 		return $result;

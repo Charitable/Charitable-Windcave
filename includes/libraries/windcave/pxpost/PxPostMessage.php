@@ -19,85 +19,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 abstract class PxPostMessage {
-	public $TxnType;
-	public $CurrencyInput;
-	public $TxnData1;
-	public $TxnData2;
-	public $TxnData3;
-	public $MerchantReference;
-	public $EmailAddress;
-	public $BillingId;
-	public $TxnId;
-
 	public function __construct() {
 	}
 
-	public function setBillingId( $BillingId ) {
-		$this->BillingId = $BillingId;
-	}
-	public function getBillingId() {
-		return $this->BillingId;
-	}
-	public function setTxnType( $TxnType ) {
-		$this->TxnType = $TxnType;
-	}
-	public function getTxnType() {
-		return $this->TxnType;
-	}
-	public function setInputCurrency( $InputCurrency ) {
-		$this->InputCurrency = $InputCurrency;
-	}
-	public function getInputCurrency() {
-		return $this->InputCurrency;
-	}
-	public function setMerchantReference( $MerchantReference ) {
-		$this->MerchantReference = $MerchantReference;
-	}
-	public function getMerchantReference() {
-		return $this->MerchantReference;
-	}
-	public function setEmailAddress( $EmailAddress ) {
-		$this->EmailAddress = $EmailAddress;
-	}
-	public function getEmailAddress() {
-		return $this->EmailAddress;
-	}
-	public function setTxnData1( $TxnData1 ) {
-		$this->TxnData1 = $TxnData1;
-	}
-	public function getTxnData1() {
-		return $this->TxnData1;
-	}
-	public function setTxnData2( $TxnData2 ) {
-		$this->TxnData2 = $TxnData2;
-	}
-	public function getTxnData2() {
-		return $this->TxnData2;
-	}
-	public function getTxnData3() {
-		return $this->TxnData3;
-	}
-	public function setTxnData3( $TxnData3 ) {
-		$this->TxnData3 = $TxnData3;
-	}
-	public function setTxnId( $TxnId ) {
-		$this->TxnId = $TxnId;
-	}
-	public function getTxnId() {
-		return $this->TxnId;
-	}
-	public function setDpsTxnRef( $DpsTxnRef ) {
-		$this->DpsTxnRef = $DpsTxnRef;
-	}
-	public function getDpsTxnRef() {
-		return $this->DpsTxnRef;
+	/**
+	 * Set request value for a particular element.
+	 *
+	 * @since  1.0.0
+	 *
+	 * @param  string $element The element to set.
+	 * @param  mixed  $value   The value to set it to.
+	 * @return mixed
+	 */
+	public function __set( $element, $value ) {
+		return $this->$element = $value;
 	}
 
 	public function toXml() {
 		$xml = '<Txn>';
-
-		print_r( get_object_vars( $this ) );
-		// echo '<code>' . $xml . PHP_EOL;
 
 		foreach ( get_object_vars( $this ) as $prop => $val ) {
 			if ( empty( $val ) ) {
@@ -105,11 +44,9 @@ abstract class PxPostMessage {
 			}
 
 			$xml .= "<$prop>$val</$prop>";
-			// echo $xml . PHP_EOL;
 		}
 
 		$xml .= '</Txn>';
-		echo '<code>' . $xml . '</code>' . PHP_EOL;
 
 		return $xml;
 	}

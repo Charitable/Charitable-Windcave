@@ -88,6 +88,7 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 
 			$this->supports = [
 				'1.3.0',
+				'refunds',
 			];
 
 			$this->setup();
@@ -116,6 +117,11 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 			 * Process the donation.
 			 */
 			add_filter( 'charitable_process_donation_windcave', [ $this, 'process_donation' ], 10, 3 );
+
+			/**
+			 * Refund a donation from the dashboard.
+			 */
+			add_action( 'charitable_process_refund_windcave', [ $this, 'refund_donation_from_dashboard' ] );
 
 			/**
 			 * Process the response.
@@ -226,11 +232,15 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 		 *
 		 * @since  1.0.0
 		 *
-		 * @return \Charitable_Windcave\PxPayWordPress
+		 * @return \Charitable_Windcave\PxPayWordPress|false
 		 */
 		public function pxpay() {
 			if ( ! isset( $this->pxpay ) ) {
 				$keys = $this->get_keys();
+
+				if ( empty( $keys['pxpay_userid'] ) || empty( $keys['pxpay_key'] ) ) {
+					return false;
+				}
 
 				$this->pxpay = new \Charitable_Windcave\PxPayWordPress(
 					self::WINDCAVE_PXPAY_URL,
@@ -248,11 +258,15 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 		 *
 		 * @since  1.0.0
 		 *
-		 * @return \Charitable_Windcave\PxPostWordPress
+		 * @return \Charitable_Windcave\PxPostWordPress|false
 		 */
 		public function pxpost() {
 			if ( ! isset( $this->pxpost ) ) {
 				$keys = $this->get_keys();
+
+				if ( empty( $keys['pxpost_userid'] ) || empty( $keys['pxpost_password'] ) ) {
+					return false;
+				}
 
 				$this->pxpost = new \Charitable_Windcave\PxPostWordPress(
 					self::WINDCAVE_PXPOST_URL,
@@ -329,6 +343,90 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 
 			/* Avoid processing this response again. */
 			add_post_meta( $donation_id, '_charitable_processed_windcave_response', true );
+		}
+
+		/**
+		 * Check whether a particular donation can be refunded automatically in Windcave.
+		 *
+		 * @since  1.0.0
+		 *
+		 * @param  Charitable_Donation $donation The donation object.
+		 * @return boolean
+		 */
+		public function is_donation_refundable( Charitable_Donation $donation ) {
+			return false !== ( $this->pxpost() && $donation->get_gateway_transaction_id() );
+		}
+
+		/**
+		 * Process a refund initiated in the WordPress dashboard.
+		 *
+		 * @since  1.0.0
+		 *
+		 * @param  int $donation_id The donation ID.
+		 * @return boolean
+		 */
+		public static function refund_donation_from_dashboard( $donation_id ) {
+			$donation = charitable_get_donation( $donation_id );
+
+			if ( ! $donation ) {
+				return false;
+			}
+
+			$pxpost = $this->pxpost();
+
+			if ( ! $pxpost ) {
+				return false;
+			}
+
+			$transaction = $donation->get_gateway_transaction_id();
+
+			if ( ! $transaction ) {
+				return false;
+			}
+
+			$request                = new \Charitable_Windcave\PxPostRequest();
+			$request->TxnType       = 'Refund';
+			$request->Amount        = $donation->get_total_donation_amount( true );
+			$request->InputCurrency = charitable_get_currency();
+			$request->DpsTxnRef     = $transaction;
+
+			$response = new \Charitable_Windcave\PxPostResponse( $pxpost->makeRequest( $request ) );
+
+			if ( is_wp_error( $response ) ) {
+				$donation->log()->add(
+					sprintf(
+						/* translators: %1$s: error message; %2$s: error code */
+						__( 'Windcave refund failed: %1$s [%2$s]', 'charitable-windcave' ),
+						$request_string->get_error_message(),
+						$request_string->get_error_code()
+					)
+				);
+
+				return false;
+			} elseif ( ! $response->Success ) {
+				$donation->log()->add(
+					sprintf(
+						/* translators: %s: error message. */
+						__( 'Windcave refund failed: %1$s', 'charitable-windcave' ),
+						$response->ResponseText
+					)
+				);
+
+				return false;
+			}
+
+			update_post_meta( $donation_id, '_windcave_refunded', true );
+			update_post_meta( $donation_id, '_windcave_refund_id', $response->DpsTxnRef );
+
+			$donation->log()->add(
+				sprintf(
+					/* translators: %s: transaction reference. */
+					__( 'Windcave refund transaction ID: <code>%s</code>', 'charitable-windcave' ),
+					$response->DpsTxnRef
+				)
+			);
+
+			return true;
 		}
 	}
 
