@@ -2,11 +2,11 @@
 namespace Charitable_Windcave;
 
 /**
- * Abstract base class for PxPay messages.
+ * Abstract base class for PxPost messages.
  *
  * These are messages with certain defined elements, which can be serialized to XML.
  *
- * @package   PxPay/Classes/PxPayMessage
+ * @package   PxPost/Classes/PxPostMessage
  * @author    Windcave DevSupport, Eric Daams
  * @copyright Windcave 2017(c)
  * @since     1.0.0
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-abstract class PxPayMessage {
+abstract class PxPostMessage {
 	public $TxnType;
 	public $CurrencyInput;
 	public $TxnData1;
@@ -28,6 +28,9 @@ abstract class PxPayMessage {
 	public $EmailAddress;
 	public $BillingId;
 	public $TxnId;
+
+	public function __construct() {
+	}
 
 	public function setBillingId( $BillingId ) {
 		$this->BillingId = $BillingId;
@@ -41,11 +44,11 @@ abstract class PxPayMessage {
 	public function getTxnType() {
 		return $this->TxnType;
 	}
-	public function setCurrencyInput( $CurrencyInput ) {
-		$this->CurrencyInput = $CurrencyInput;
+	public function setInputCurrency( $InputCurrency ) {
+		$this->InputCurrency = $InputCurrency;
 	}
-	public function getCurrencyInput() {
-		return $this->CurrencyInput;
+	public function getInputCurrency() {
+		return $this->InputCurrency;
 	}
 	public function setMerchantReference( $MerchantReference ) {
 		$this->MerchantReference = $MerchantReference;
@@ -83,17 +86,31 @@ abstract class PxPayMessage {
 	public function getTxnId() {
 		return $this->TxnId;
 	}
+	public function setDpsTxnRef( $DpsTxnRef ) {
+		$this->DpsTxnRef = $DpsTxnRef;
+	}
+	public function getDpsTxnRef() {
+		return $this->DpsTxnRef;
+	}
 
 	public function toXml() {
-		$arr = get_object_publics( $this );
+		$xml = '<Txn>';
 
-		$xml = '<GenerateRequest>';
+		print_r( get_object_vars( $this ) );
+		// echo '<code>' . $xml . PHP_EOL;
 
-		while ( list($prop, $val) = each( $arr ) ) {
+		foreach ( get_object_vars( $this ) as $prop => $val ) {
+			if ( empty( $val ) ) {
+				continue;
+			}
+
 			$xml .= "<$prop>$val</$prop>";
+			// echo $xml . PHP_EOL;
 		}
 
-		$xml .= '</GenerateRequest>';
+		$xml .= '</Txn>';
+		echo '<code>' . $xml . '</code>' . PHP_EOL;
+
 		return $xml;
 	}
 }

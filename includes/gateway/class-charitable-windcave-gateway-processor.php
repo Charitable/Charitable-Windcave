@@ -4,7 +4,7 @@
  *
  * @package   Charitable Windcave/Classes/Charitable_Windcave_Gateway_Processor
  * @author    Eric Daams
- * @copyright Copyright (c) 2019, Studio 164a
+ * @copyright Copyright (c) 2020, Studio 164a
  * @license   http://opensource.org/licenses/gpl-2.0.php GNU Public License
  * @since     1.0.0
  * @version   1.0.0
@@ -22,10 +22,7 @@ if ( ! class_exists( 'Charitable_Windcave_Gateway_Processor' ) ) :
 	 *
 	 * @since 1.0.0
 	 */
-	abstract class Charitable_Windcave_Gateway_Processor implements Charitable_Windcave_Gateway_Processor_Interface {
-
-		/** The URL that PxPay requests should be made to. */
-		const WINDCAVE_REQUEST_URL = 'https://sec.windcave.com/pxaccess/pxpay.aspx';
+	class Charitable_Windcave_Gateway_Processor {
 
 		/**
 		 * The donation object.
@@ -104,17 +101,66 @@ if ( ! class_exists( 'Charitable_Windcave_Gateway_Processor' ) ) :
 		 * @return boolean|array
 		 */
 		public function run() {
-			$keys  = $this->gateway->get_keys();
-			$pxpay = new Charitable_Windcave\PxPay_Curl(
-				self::WINDCAVE_REQUEST_URL,
-				$keys['user_id'],
-				$keys['key']
-			);
+			/* Set up PxPay request properties. */
+			$request = new \Charitable_Windcave\PxPayRequest();
+			$request->setMerchantReference( $this->donation->ID );
+			$request->setAmountInput( $this->donation->get_total_donation_amount( true ) );
+			$request->setTxnData1( $this->donor->get_name() );
+			$request->setTxnData2( $this->donor->get_donor_meta( 'address' ) );
+			$request->setTxnData3( $this->donor->get_donor_meta( 'address_2' ) );
+			$request->setTxnType( 'Purchase' );
+			$request->setCurrencyInput( charitable_get_currency() );
+			$request->setEmailAddress( $this->donor->get_donor_meta( 'email' ) );
+			$request->setUrlFail( charitable_get_permalink( 'donation_cancel_page', [ 'donation_id' => $this->donation->ID ] ) );
+			$request->setUrlSuccess( charitable_get_permalink( 'donation_receipt_page', [ 'donation_id' => $this->donation->ID ] ) );
+			$request->setTxnId( substr( $this->donation->get_donation_key(), 0, 16 ) );
 
-			echo '<pre>';
-			var_dump( $pxpay );
-			echo '</pre>';
-			die;
+			/* Call makeRequest function to obtain input XML. */
+			$request_string = $this->gateway->pxpay()->makeRequest( $request );
+
+			if ( is_wp_error( $request_string ) ) {
+				charitable_get_notices()->add_error( __( 'Error when attempting to create payment request.', 'charitable-windcave' ) );
+
+				$this->donation_log->add(
+					sprintf(
+						/* translators: %1$s: error message; %2$s: error code */
+						__( 'Error response when setting up payment request with Windcave API: %1$s [%2$s]', 'charitable-windcave' ),
+						$request_string->get_error_message(),
+						$request_string->get_error_code()
+					)
+				);
+
+				return false;
+			}
+
+			/* Obtain output XML. */
+			$response = new \Charitable_Windcave\MifMessage( $request_string );
+
+			/* Parse output XML. */
+			$redirect_url = $response->get_element_text( 'URI' );
+			$valid        = $response->get_attribute( 'valid' );
+
+			if ( ! $valid || empty( $redirect_url ) ) {
+				charitable_get_notices()->add_error( __( 'Error when attempting to create payment request.', 'charitable-windcave' ) );
+
+				$this->donation_log->add(
+					sprintf(
+						/* translators: %1$s: error message; %2$s: error code */
+						__( 'Invalid payment request response received from Windcave API: %1$s', 'charitable-windcave' ),
+						$response->get_element_text( 'ResponseText' )
+					)
+				);
+
+				return false;
+			}
+
+			/* Log that the payment request was successful. */
+			$this->donation_log->add( __( 'Payment request created. Redirecting user to Windcave payment page.', 'charitable-windcave' ) );
+
+			return [
+				'redirect' => $redirect_url,
+				'safe'     => false,
+			];
 		}
 	}
 

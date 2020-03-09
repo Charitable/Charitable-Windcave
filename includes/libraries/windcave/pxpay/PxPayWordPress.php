@@ -2,13 +2,17 @@
 namespace Charitable_Windcave;
 
 /**
- * Responsible for setting up Curl requests to Windcave API.
+ * Responsible for setting up requests to Windcave API.
  *
- * @package   PxPay/Classes/PxPay_Curl
+ * This is based on the PxPay_Curl class provided by Windcave
+ * in their sample library, but uses WordPress' wp_remote_post
+ * function instead of curl.
+ *
+ * @package   PxPay/Classes/PxPayWordPress
  * @author    Windcave DevSupport, Eric Daams
  * @copyright Windcave 2017(c)
  * @since     1.0.0
- * @version   2.0.0
+ * @version   1.0.0
  */
 
 // Exit if accessed directly.
@@ -16,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class PxPay_Curl {
+class PxPayWordPress {
 
 	public $PxPay_Key;
 	public $PxPay_Url;
@@ -32,7 +36,7 @@ class PxPay_Curl {
 	 * Create a request for the PxPay interface.
 	 */
 	public function makeRequest( $request ) {
-		#Validate the Request
+		/* Validate the request. */
 		if ( $request->validData() == false ) {
 			return '';
 		}
@@ -45,14 +49,12 @@ class PxPay_Curl {
 		$result = $this->submitXml( $xml );
 
 		return $result;
-
 	}
 
 	/**
 	 * Return the transaction outcome details.
 	 */
 	public function getResponse( $result ) {
-
 		$inputXml = '<ProcessResponse><PxPayUserId>' . $this->PxPay_Userid . '</PxPayUserId><PxPayKey>' . $this->PxPay_Key .
 		'</PxPayKey><Response>' . $result . '</Response></ProcessResponse>';
 
@@ -63,26 +65,24 @@ class PxPay_Curl {
 	}
 
 	/**
-	 * Actual submission of XML using cURL. Returns output XML.
+	 * Actual submission of XML using wp_remote_post. Returns output XML.
 	 */
 	public function submitXml( $inputXml ) {
+		$response = wp_remote_post(
+			$this->PxPay_Url,
+			[
+				'timeout'     => 20,
+				'redirection' => 5,
+				'httpversion' => '1.0',
+				'blocking'    => true,
+				'body'        => $inputXml,
+			],
+		);
 
-		$ch = curl_init();
-		curl_setopt( $ch, CURLOPT_URL, $this->PxPay_Url );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
 
-		curl_setopt( $ch, CURLOPT_POST, 1 );
-		curl_setopt( $ch, CURLOPT_POSTFIELDS, $inputXml );
-		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
-		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, 0 );
-
-		#set up proxy, this may change depending on ISP, please contact your ISP to get the correct cURL settings
-		#curl_setopt($ch,CURLOPT_PROXY , "proxy:8080");
-		#curl_setopt($ch,CURLOPT_PROXYUSERPWD,"username:password");
-
-		$outputXml = curl_exec( $ch );
-
-		curl_close( $ch );
-
-		return $outputXml;
+		return wp_remote_retrieve_body( $response );
 	}
 }

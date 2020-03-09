@@ -26,6 +26,12 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 		/** The gateway ID. */
 		const ID = 'windcave';
 
+		/** The URL that PxPay requests should be made to. */
+		const WINDCAVE_PXPAY_URL = 'https://sec.windcave.com/pxaccess/pxpay.aspx';
+
+		const WINDCAVE_PXPOST_URL = 'https://sec.paymentexpress.com/pxpost.aspx';
+
+
 		/**
 		 * Boolean flag recording whether the gateway hooks
 		 * have been set up.
@@ -44,6 +50,24 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 		 * @var   boolean
 		 */
 		protected $credit_card_form;
+
+		/**
+		 * PxPay class for making requests.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @var   \Charitable_Windcave\PxPayWordPress
+		 */
+		protected $pxpay;
+
+		/**
+		 * PxPost class for making requests.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @var   \Charitable_Windcave\PxPostWordPress
+		 */
+		protected $pxpost;
 
 		/**
 		 * Instantiate the gateway class, defining its key values.
@@ -94,6 +118,11 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 			 * Process the donation.
 			 */
 			add_filter( 'charitable_process_donation_windcave', [ $this, 'process_donation' ], 10, 3 );
+
+			/**
+			 * Process the response.
+			 */
+			add_action( 'init', [ $this, 'process_response' ] );
 		}
 
 		/**
@@ -158,9 +187,53 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 		 */
 		public function get_keys() {
 			return [
-				'key'     => trim( $this->get_value( 'key' ) ),
-				'user_id' => trim( $this->get_value( 'user_id' ) ),
+				'key'    => trim( $this->get_value( 'key' ) ),
+				'userid' => trim( $this->get_value( 'userid' ) ),
 			];
+		}
+
+		/**
+		 * Set up a PxPay object.
+		 *
+		 * @since  1.0.0
+		 *
+		 * @return \Charitable_Windcave\PxPayWordPress
+		 */
+		public function pxpay() {
+			if ( ! isset( $this->pxpay ) ) {
+				$keys = $this->get_keys();
+
+				$this->pxpay = new \Charitable_Windcave\PxPayWordPress(
+					self::WINDCAVE_PXPAY_URL,
+					$keys['userid'],
+					$keys['key']
+				);
+
+			}
+
+			return $this->pxpay;
+		}
+
+		/**
+		 * Set up a PxPost object.
+		 *
+		 * @since  1.0.0
+		 *
+		 * @return \Charitable_Windcave\PxPostWordPress
+		 */
+		public function pxpost() {
+			if ( ! isset( $this->pxpost ) ) {
+				$keys = $this->get_keys();
+
+				$this->pxpost = new \Charitable_Windcave\PxPostWordPress(
+					self::WINDCAVE_PXPOST_URL,
+					$keys['userid'],
+					$keys['key']
+				);
+
+			}
+
+			return $this->pxpost;
 		}
 
 		/**
@@ -175,82 +248,58 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 		 */
 		public function process_donation( $return, $donation_id, $processor ) {
 			$gateway_processor = new Charitable_Windcave_Gateway_Processor( $donation_id, $processor );
-
 			return $gateway_processor->run();
-
-			// API keys
-			// $keys        = $gateway->get_keys();
-
-			// Donation fields
-			// $donation_key = $donation->get_donation_key();
-			// $item_name    = sprintf( __( 'Donation %d', 'charitable-payu-money' ), $donation->ID );;
-			// $description  = $donation->get_campaigns_donated_to();
-			// $amount 	  = $donation->get_total_donation_amount( true );
-
-			// Donor fields
-			// $first_name   = $donor->get_donor_meta( 'first_name' );
-			// $last_name    = $donor->get_donor_meta( 'last_name' );
-			// $address      = $donor->get_donor_meta( 'address' );
-			// $address_2    = $donor->get_donor_meta( 'address_2' );
-			// $email 		  = $donor->get_donor_meta( 'email' );
-			// $city         = $donor->get_donor_meta( 'city' );
-			// $state        = $donor->get_donor_meta( 'state' );
-			// $country      = $donor->get_donor_meta( 'country' );
-			// $postcode     = $donor->get_donor_meta( 'postcode' );
-			// $phone        = $donor->get_donor_meta( 'phone' );
-
-			// URL fields
-			// $return_url = charitable_get_permalink( 'donation_receipt_page', [ 'donation_id' => $donation->ID ] );
-			// $cancel_url = charitable_get_permalink( 'donation_cancel_page', [ 'donation_id' => $donation->ID ] );
-			// $notify_url = function_exists( 'charitable_get_ipn_url' )
-			// 	? charitable_get_ipn_url( Charitable_Gateway_Sparrow::ID )
-			// 	: Charitable_Donation_Processor::get_instance()->get_ipn_url( Charitable_Gateway_Sparrow::ID );
-
-			// Credit card fields
-			// $cc_expiration = $this->get_gateway_value( 'cc_expiration', $values );
-			// $cc_number     = $this->get_gateway_value( 'cc_number', $values );
-			// $cc_year       = $cc_expiration['year'];
-			// $cc_month      = $cc_expiration['month'];
-			// $cc_cvc		   = $this->get_gateway_value( 'cc_cvc', $values );
-
-			/**
-			 * Create donation charge through gateway.
-			 *
-			 * @todo
-			 *
-			 * You should return one of three values.
-			 *
-			 * 1. If the donation fails to be processed and the user should be
-			 *    returned to the donation page, return false.
-			 * 2. If the donation succeeds and the user should be directed to
-			 *    the donation receipt, return true.
-			 * 3. If the user should be redirected elsewhere (for example,
-			 *    a gateway-hosted payment page), you should return an array
-			 *    like this:
-
-				[
-					'redirect' => $redirect_url,
-					'safe' => false // Set to false if you are redirecting away from the site.
-				];
-			 *
-			 */
-
-			return true;
 		}
 
 		/**
-		 * Process an IPN request.
+		 * Process the response from Windcave.
 		 *
 		 * @since  1.0.0
 		 *
 		 * @return void
 		 */
-		public static function process_ipn() {
-			/**
-			 * Process the IPN.
-			 *
-			 * @todo
-			 */
+		public function process_response() {
+			if ( ! isset( $_GET['result'] ) || ! isset( $_GET['userid'] ) ) {
+				return;
+			}
+
+			/* Do a sanity check to make sure the user id matches. */
+			if ( $_GET['userid'] != trim( $this->get_value( 'userid' ) ) ) {
+				return;
+			}
+
+			$response    = $this->pxpay()->getResponse( $_GET['result'] );
+			$donation_id = $response->getMerchantReference();
+
+			if ( ! $donation_id ) {
+				return;
+			}
+
+			/* We've processed this donation already. */
+			if ( get_post_meta( $donation_id, '_charitable_processed_windcave_response', true ) ) {
+				return;
+			}
+
+			$donation = new Charitable_Donation( $donation_id );
+
+			/* Make sure the txnID matches the donation key. */
+			if ( $response->getTxnId() != substr( $donation->get_donation_key(), 0, 16 ) ) {
+				return;
+			}
+
+			/* Record the gateway transaction ID. */
+			$donation->set_gateway_transaction_id( $response->getDpsTxnRef() );
+
+			if ( '1' == $response->getSuccess() ) {
+				$donation->update_donation_log( __( 'Payment completed.', 'charitable-windcave' ) );
+				$donation->update_status( 'charitable-completed' );
+			} else {
+				$donation->update_donation_log( $response->getResponseText() );
+				$donation->update_status( 'charitable-failed' );
+			}
+
+			/* Avoid processing this response again. */
+			add_post_meta( $donation_id, '_charitable_processed_windcave_response', true );
 		}
 	}
 
