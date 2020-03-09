@@ -26,11 +26,9 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 		/** The gateway ID. */
 		const ID = 'windcave';
 
-		/** The URL that PxPay requests should be made to. */
-		const WINDCAVE_PXPAY_URL = 'https://sec.windcave.com/pxaccess/pxpay.aspx';
-
+		/** The URL that PxPay & PxPost requests should be made to. */
+		const WINDCAVE_PXPAY_URL  = 'https://sec.windcave.com/pxaccess/pxpay.aspx';
 		const WINDCAVE_PXPOST_URL = 'https://sec.paymentexpress.com/pxpost.aspx';
-
 
 		/**
 		 * Boolean flag recording whether the gateway hooks
@@ -145,21 +143,50 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 		 * @return array[]
 		 */
 		public function gateway_settings( $settings ) {
-			$settings['userid'] = [
-				'type'     => 'text',
-				'title'    => __( 'PxPay User ID', 'charitable-windcave' ),
-				'priority' => 6,
-				'class'    => 'wide',
-			];
-
-			$settings['key'] = [
-				'type'     => 'text',
-				'title'    => __( 'PxPay Key', 'charitable-windcave' ),
-				'priority' => 8,
-				'class'    => 'wide',
-			];
-
-			return $settings;
+			return array_merge(
+				$settings,
+				[
+					'pxpay'           => [
+						'title'    => __( 'PxPay Settings', 'charitable-windcave' ),
+						'type'     => 'heading',
+						'priority' => 4,
+					],
+					'pxpay_userid'    => [
+						'type'     => 'text',
+						'title'    => __( 'PxPay User ID', 'charitable-windcave' ),
+						'priority' => 6,
+						'class'    => 'wide',
+					],
+					'pxpay_key'       => [
+						'type'     => 'text',
+						'title'    => __( 'PxPay Key', 'charitable-windcave' ),
+						'priority' => 8,
+						'class'    => 'wide',
+					],
+					'pxppost'         => [
+						'title'    => __( 'PxPost Settings', 'charitable-windcave' ),
+						'type'     => 'heading',
+						'priority' => 10,
+					],
+					'pxpost_intro'    => [
+						'type'     => 'content',
+						'content'  => __( 'PxPost credentials are required to be able to refund donations from within Charitable.', 'charitable-windcave' ),
+						'priority' => 11,
+					],
+					'pxpost_userid'   => [
+						'type'     => 'text',
+						'title'    => __( 'PxPost User ID', 'charitable-windcave' ),
+						'priority' => 12,
+						'class'    => 'wide',
+					],
+					'pxpost_password' => [
+						'type'     => 'text',
+						'title'    => __( 'PxPost Password', 'charitable-windcave' ),
+						'priority' => 14,
+						'class'    => 'wide',
+					],
+				]
+			);
 		}
 
 		/**
@@ -187,8 +214,10 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 		 */
 		public function get_keys() {
 			return [
-				'key'    => trim( $this->get_value( 'key' ) ),
-				'userid' => trim( $this->get_value( 'userid' ) ),
+				'pxpay_key'       => trim( $this->get_value( 'pxpay_key' ) ),
+				'pxpay_userid'    => trim( $this->get_value( 'pxpay_userid' ) ),
+				'pxpost_userid'   => trim( $this->get_value( 'pxpost_userid' ) ),
+				'pxpost_password' => trim( $this->get_value( 'pxpost_password' ) ),
 			];
 		}
 
@@ -205,8 +234,8 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 
 				$this->pxpay = new \Charitable_Windcave\PxPayWordPress(
 					self::WINDCAVE_PXPAY_URL,
-					$keys['userid'],
-					$keys['key']
+					$keys['pxpay_userid'],
+					$keys['pxpay_key']
 				);
 
 			}
@@ -227,8 +256,8 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 
 				$this->pxpost = new \Charitable_Windcave\PxPostWordPress(
 					self::WINDCAVE_PXPOST_URL,
-					$keys['userid'],
-					$keys['key']
+					$keys['pxpost_userid'],
+					$keys['pxpost_password']
 				);
 
 			}

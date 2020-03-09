@@ -1,47 +1,105 @@
-# Copyright (c) 2020 WP Charitable
+# Copyright (C) 2020 WP Charitable
 # This file is distributed under the same license as the Charitable - Windcave package.
 msgid ""
 msgstr ""
 "Project-Id-Version: Charitable - Windcave 1.0.0\n"
 "Report-Msgid-Bugs-To: https://www.wpcharitable.com/\n"
-"POT-Creation-Date: 2015-12-19 04:50:42+00:00\n"
+"POT-Creation-Date: 2020-03-09 08:30:00+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2015-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2020-MO-DA HO:MI+ZONE\n"
 "Last-Translator: WP-Translations (http://wp-translations.org/)\n"
 "Language-Team: WP-Translations <wpt@wp-translations.org>\n"
-"X-Generator: grunt-wp-i18n 0.4.9\n"
-"X-Poedit-KeywordsList: "
-"__;_e;_x:1,2c;_ex:1,2c;_n:1,2;_nx:1,2,4c;_n_noop:1,2;_nx_noop:1,2,3c;esc_"
-"attr__;esc_html__;esc_attr_e;esc_html_e;esc_attr_x:1,2c;esc_html_x:1,2c;\n"
 "Language: en_US\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-Country: United States\n"
 "X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: "
+"__;_e;_x:1,2c;_ex:1,2c;_n:1,2;_nx:1,2,4c;_n_noop:1,2;_nx_noop:1,2,3c;esc_"
+"attr__;esc_html__;esc_attr_e;esc_html_e;esc_attr_x:1,2c;esc_html_x:1,2c;\n"
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-Bookmarks: \n"
 "X-Textdomain-Support: yes\n"
+"X-Generator: grunt-wp-i18n 1.0.3\n"
 
-#: includes/class-charitable-extension-activation.php:45
+#: includes/admin/class-charitable-extension-activation.php:55
 msgid "This plugin"
 msgstr ""
 
-#: includes/class-charitable-extension-activation.php:81
+#: includes/admin/class-charitable-extension-activation.php:94
 msgid "activate it"
 msgstr ""
 
-#: includes/class-charitable-extension-activation.php:84
+#: includes/admin/class-charitable-extension-activation.php:97
 msgid "install it"
 msgstr ""
 
-#: includes/class-charitable-windcave.php:246
-#: includes/class-charitable-windcave.php:257
-msgid "Cheatin&#8217; huh?"
+#: includes/admin/class-charitable-windcave-admin.php:76
+msgid "Settings"
 msgstr ""
 
-#: includes/class-charitable-extension-activation.php:87
+#: includes/admin/class-charitable-windcave-admin.php:89
+msgid "Activate Windcave Gateway"
+msgstr ""
+
+#: includes/class-charitable-windcave.php:330
+msgid "Cloning this object is forbidden."
+msgstr ""
+
+#: includes/class-charitable-windcave.php:345
+msgid "Unserializing instances of this class is forbidden."
+msgstr ""
+
+#: includes/gateway/class-charitable-gateway-windcave.php:85
+#: includes/gateway/class-charitable-gateway-windcave.php:88
+msgid "Windcave"
+msgstr ""
+
+#: includes/gateway/class-charitable-gateway-windcave.php:150
+msgid "PxPay User ID"
+msgstr ""
+
+#: includes/gateway/class-charitable-gateway-windcave.php:157
+msgid "PxPay Key"
+msgstr ""
+
+#: includes/gateway/class-charitable-gateway-windcave.php:294
+msgid "Payment completed."
+msgstr ""
+
+#: includes/gateway/class-charitable-windcave-gateway-processor.php:122
+#: includes/gateway/class-charitable-windcave-gateway-processor.php:144
+msgid "Error when attempting to create payment request."
+msgstr ""
+
+#: includes/gateway/class-charitable-windcave-gateway-processor.php:127
+#. translators: %1$s: error message; %2$s: error code
+msgid ""
+"Error response when setting up payment request with Windcave API: %1$s "
+"[%2$s]"
+msgstr ""
+
+#: includes/gateway/class-charitable-windcave-gateway-processor.php:149
+#. translators: %1$s: error message; %2$s: error code
+msgid "Invalid payment request response received from Windcave API: %1$s"
+msgstr ""
+
+#: includes/gateway/class-charitable-windcave-gateway-processor.php:158
+msgid "Payment request created. Redirecting user to Windcave payment page."
+msgstr ""
+
+#: includes/gateway/class-charitable-windcave-webhook-processor.php:70
+msgid "Invalid Windcave event."
+msgstr ""
+
+#: includes/gateway/class-charitable-windcave-webhook-processor.php:135
+#. translators: %s: error message
+msgid "Webhook processing error: %s"
+msgstr ""
+
+#: includes/admin/class-charitable-extension-activation.php:100
 msgctxt "Plugin requires Charitable! Please install/activate it to continue!"
 msgid "%s requires Charitable! Please %s to continue!"
 msgstr ""
