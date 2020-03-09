@@ -23,7 +23,7 @@ require_once( 'pxpay/PxPay_Curl.php' );
 require_once( 'pxpay/PxPayMessage.php' );
 require_once( 'pxpay/PxPayRequest.php' );
 require_once( 'pxpay/PxPayResponse.php' );
-require_once( 'pxpost/PxPostWordPress.php' );
+require_once( 'pxpay/PxPayWordPress.php' );
 require_once( 'pxpost/PxPostMessage.php' );
 require_once( 'pxpost/PxPostRequest.php' );
 require_once( 'pxpost/PxPostResponse.php' );
