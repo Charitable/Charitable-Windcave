@@ -96,6 +96,18 @@ if ( ! class_exists( 'Charitable_Windcave_Gateway_Processor' ) ) :
 		}
 
 		/**
+		 * Get object property.
+		 *
+		 * @since  1.0.0
+		 *
+		 * @param  string $prop The propery to get.
+		 * @return mixed
+		 */
+		public function __get( $prop ) {
+			return $this->$prop;
+		}
+
+		/**
 		 * Run the processor.
 		 *
 		 * @return boolean|array
