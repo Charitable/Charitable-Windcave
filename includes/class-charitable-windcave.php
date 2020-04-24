@@ -7,8 +7,8 @@
  * @package   Charitable Windcave
  * @copyright Copyright (c) 2020, Eric Daams
  * @license   http://opensource.org/licenses/gpl-1.0.0.php GNU Public License
+ * @since     1.0.0
  * @version   1.0.0
- * @since    1.0.0
  */
 
 // Exit if accessed directly.
