@@ -3,11 +3,11 @@
  * Plugin Name:       Charitable - Windcave
  * Plugin URI:        https://www.wpcharitable.com/extensions/charitable-windcave
  * Description:       Accept donations securely with Windcave.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Author:            WP Charitable
  * Author URI:        https://www.wpcharitable.com
  * Requires at least: 5.0
- * Tested up to:      5.4
+ * Tested up to:      5.4.1
  *
  * Text Domain: charitable-windcave
  * Domain Path: /languages/
