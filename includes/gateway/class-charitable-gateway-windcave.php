@@ -307,7 +307,7 @@ if ( ! class_exists( 'Charitable_Gateway_Windcave' ) ) :
 			}
 
 			/* Do a sanity check to make sure the user id matches. */
-			if ( $_GET['userid'] != trim( $this->get_value( 'userid' ) ) ) {
+			if ( $_GET['userid'] != trim( $this->get_value( 'pxpay_userid' ) ) ) {
 				return;
 			}
 
