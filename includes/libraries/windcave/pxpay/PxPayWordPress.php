@@ -76,7 +76,7 @@ class PxPayWordPress {
 				'httpversion' => '1.0',
 				'blocking'    => true,
 				'body'        => $inputXml,
-			],
+			]
 		);
 
 		if ( is_wp_error( $response ) ) {
